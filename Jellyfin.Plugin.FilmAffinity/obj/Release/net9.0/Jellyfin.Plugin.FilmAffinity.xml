@@ -1,0 +1,329 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Jellyfin.Plugin.FilmAffinity</name>
+    </assembly>
+    <members>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityCacheService">
+            <summary>
+            Servicio de cache en memoria para resultados de FilmAffinity.
+            TTL: 6h para peliculas recientes (ultimos 2 anios), 24h para el resto.
+            Sin dependencia de SQLite ni almacenamiento persistente.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityCacheService.TryGet(System.String,System.Nullable{System.Int32},Jellyfin.Plugin.FilmAffinity.Scraping.RatingResult@)">
+            <summary>
+            Intenta obtener un resultado de la cache.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityCacheService.Set(System.String,System.Nullable{System.Int32},Jellyfin.Plugin.FilmAffinity.Scraping.RatingResult)">
+            <summary>
+            Almacena un resultado en la cache con TTL segun la antiguedad de la pelicula.
+            Peliculas de los ultimos 2 anios: 6h. Resto: 24h.
+            Si el anio no es parseable, se asume pelicula reciente (TTL corto de 6h)
+            por seguridad: mejor refrescar de mas que mantener datos incorrectos.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityCacheService.BuildKey(System.String,System.Nullable{System.Int32})">
+            <summary>
+            Construye una clave de cache unica basada en titulo normalizado y anio.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient">
+            <summary>
+            Cliente de scraping nativo de FilmAffinity.
+            v2.0: Realiza scraping directo con HttpClient + HtmlAgilityPack,
+            sin dependencia de API externa ni Puppeteer.
+            La configuracion del HttpClient (BaseAddress, Timeout, User-Agent)
+            se aplica via PluginServiceRegistrator.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.GetMovie(System.String,System.String,System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Obtiene el rating de FA para una pelicula individual.
+            Estrategia de matching en 3 pasos:
+            1. Titulo original + anio
+            2. Titulo localizado + anio (si es distinto del original)
+            3. Titulo original sin anio (fallback)
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.SearchAndGetRating(System.String,System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Flujo completo: busca en FilmAffinity y, si encuentra una ficha,
+            extrae el rating de la pagina de detalle.
+            </summary>
+            <param name="title">Titulo a buscar.</param>
+            <param name="year">Anio opcional para filtrar resultados.</param>
+            <param name="ct">Token de cancelacion.</param>
+            <returns>RatingResult si se encontro y extrajo el rating, null en caso contrario.</returns>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.SearchAsync(System.String,System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Busca una pelicula/serie en la pagina de busqueda de FilmAffinity
+            y devuelve la URL de la ficha mas probable.
+            </summary>
+            <param name="title">Titulo a buscar.</param>
+            <param name="year">Anio opcional para filtrar resultados.</param>
+            <param name="ct">Token de cancelacion.</param>
+            <returns>URL relativa de la ficha (ej: /es/film704416.html) o null.</returns>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.ParseSearchResults(System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Extrae la URL de la ficha mas probable de la pagina de resultados de busqueda.
+            Busca enlaces con el patron /filmXXXXX.html dentro de contenedores de resultado.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.GetRatingAsync(System.String,System.String,System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Extrae el rating, votos y datos de una ficha de FilmAffinity.
+            Usa los selectores CSS equivalentes al scraper de Cruzadera.
+            </summary>
+            <param name="filmUrl">URL relativa de la ficha (ej: /es/film704416.html).</param>
+            <param name="requestedTitle">Titulo original solicitado para verificacion.</param>
+            <param name="requestedYear">Anio solicitado para verificacion.</param>
+            <param name="ct">Token de cancelacion.</param>
+            <returns>RatingResult con los datos extraidos, o null si no se encontro rating.</returns>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.ParseRatingPage(System.String,System.String,System.String,System.Nullable{System.Int32})">
+            <summary>
+            Parsea la pagina de detalle de FilmAffinity para extraer rating, votos y titulo.
+            Selectores CSS (equivalentes al scraper de Cruzadera):
+            - Rating: #rat-avg-count, #movie-rat-avg, meta[itemprop="ratingValue"]
+            - Votos: #movie-count-rat, meta[itemprop="ratingCount"]
+            - Titulo: #main-title
+            - Anio: .fa-year, dd[itemprop="datePublished"]
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.GetText(HtmlAgilityPack.HtmlDocument,System.String)">
+            <summary>
+            Obtiene el texto de un nodo mediante selector CSS (via XPath).
+            Soporta selectores basicos: #id, .class, tag, [attr=value].
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.GetAttr(HtmlAgilityPack.HtmlDocument,System.String,System.String)">
+            <summary>
+            Obtiene el valor de un atributo de un nodo.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.CssToXPath(System.String)">
+            <summary>
+            Convierte selectores CSS basicos a XPath.
+            Soporta: #id, .class, tag, [attr=value], combinaciones simples.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.RestToXPath(System.String)">
+            <summary>
+            Convierte el resto de un selector CSS (clases, atributos) a predicados XPath.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration">
+            <summary>
+            Configuracion persistente del plugin FilmAffinity v2.0.
+            Se serializa a XML en /config/plugins/FilmAffinity.xml
+            Scraping nativo: sin dependencia de API externa.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.FilmAffinityBaseUrl">
+            <summary>URL base de FilmAffinity (incluye subdirectorio de idioma)</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.RequestTimeoutSeconds">
+            <summary>Timeout en segundos para cada request HTTP a FilmAffinity</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.UserAgent">
+            <summary>User-Agent enviado en las peticiones HTTP</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.MinVotes">
+            <summary>Minimo de votos en FA para considerar la valoracion fiable</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.SetCriticRating">
+            <summary>Si es true, tambien escribe CriticRating (FA rating x 10)</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.ThrottleMs">
+            <summary>Delay entre requests HTTP a FilmAffinity (ms)</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.SyncIntervalHours">
+            <summary>Intervalo de sincronizacion programada en horas</summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.FilmAffinityHelpers">
+            <summary>
+            Metodos auxiliares compartidos entre providers y el SyncTask.
+            Centraliza el parseo de votos y normalizacion de texto para evitar duplicacion.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.FilmAffinityHelpers.ParseVotes(System.String)">
+            <summary>
+            Convierte el string de votos de FilmAffinity ("12.345", "1,234", "173.755")
+            a entero, eliminando separadores de miles.
+            </summary>
+            <param name="votes">String de votos extraido del HTML de FA.</param>
+            <returns>Numero de votos como entero, o 0 si no se pudo parsear.</returns>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.FilmAffinityHelpers.HasEnoughVotes(System.String,System.Int32)">
+            <summary>
+            Verifica si un rating de FilmAffinity tiene suficientes votos
+            para ser considerado fiable, segun la configuracion del plugin.
+            </summary>
+            <param name="votes">String de votos extraido del HTML de FA (ej: "173.755").</param>
+            <param name="minVotes">Umbral minimo de votos desde la configuracion.</param>
+            <returns>true si los votos alcanzan o superan el minimo.</returns>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.FilmAffinityHelpers.NormalizeSearchText(System.String)">
+            <summary>
+            Normaliza un texto para busqueda y comparacion en FilmAffinity.
+            Elimina acentos (NFD), convierte a minusculas, quita guiones y
+            colapsa todos los caracteres no alfanumericos en espacios.
+            Equivalente a la funcion normalizeSearchText del scraper de Cruzadera.
+            Ejemplo: "  Amelie  " -> "amelie"
+            </summary>
+            <param name="value">Texto a normalizar (titulo de pelicula/serie).</param>
+            <returns>Texto normalizado, sin acentos ni caracteres especiales, en minusculas.</returns>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Plugin">
+            <summary>
+            Plugin principal de FilmAffinity para Jellyfin.
+            Registra los providers de metadata y la tarea programada de sincronizacion.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Plugin.Instance">
+            <summary>Instancia unica del plugin accesible desde cualquier parte del codigo.</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Plugin.Log">
+            <summary>Logger estatico para uso en clases que no reciben DI.</summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Plugin.GetPages">
+            <summary>
+            Paginas web del plugin. La pagina de configuracion se sirve como recurso embebido.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.PluginServiceRegistrator">
+            <summary>
+            Registra los servicios del plugin en el contenedor de DI de Jellyfin.
+            Jellyfin detecta automaticamente esta clase al iniciar y llama a RegisterServices.
+            v2.0: Scraping nativo, sin API externa. HttpClient apunta directamente a FilmAffinity.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityBoxSetProvider">
+            <summary>
+            Provider que aniade el rating de FilmAffinity a sagas y colecciones (BoxSet).
+            FilmAffinity tiene paginas dedicadas para sagas (ej: "El Senor de los Anillos (Saga)").
+            v2.0: Scraping nativo.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider">
+            <summary>
+            Provider que aniade el rating de FilmAffinity a peliculas.
+            Se ejecuta despues de los providers principales (TMDB, TVDB, etc.)
+            gracias a IHasOrder.Order = 1. No reemplaza metadatos existentes,
+            solo complementa con el rating de FA.
+            v2.0: Scraping nativo.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider.Order">
+            <summary>
+            Orden 1 = se ejecuta despues de los providers principales
+            (que tienen orden negativo o 0). Asi no interfiere con TMDB/TVDB.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider.GetMetadata(MediaBrowser.Controller.Providers.MovieInfo,System.Threading.CancellationToken)">
+            <summary>
+            Obtiene el rating de FilmAffinity para una pelicula.
+            Jellyfin llama a este metodo durante el escaneo de bibliotecas.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider.GetSearchResults(MediaBrowser.Controller.Providers.MovieInfo,System.Threading.CancellationToken)">
+            <summary>
+            No implementamos busqueda completa. Solo enriquecemos ratings.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider.GetImageResponse(System.String,System.Threading.CancellationToken)">
+            <summary>
+            No gestionamos imagenes.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinitySeriesProvider">
+            <summary>
+            Provider que aniade el rating de FilmAffinity a series de TV.
+            Misma logica que FilmAffinityMovieProvider pero para el tipo Series.
+            v2.0: Scraping nativo.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.ScheduledTasks.FilmAffinitySyncTask">
+            <summary>
+            Tarea programada que recorre la biblioteca en busca de items
+            sin el ProviderId de FilmAffinity y les asigna el rating via scraping directo.
+            Se ejecuta diariamente a las 3 AM por defecto.
+            v2.0: Scraping nativo, sin API externa. Cada item se busca individualmente en FA.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.ScheduledTasks.FilmAffinitySyncTask.ExecuteAsync(System.IProgress{System.Double},System.Threading.CancellationToken)">
+            <summary>
+            Ejecuta la sincronizacion masiva de ratings mediante scraping directo.
+            Itera sobre items sin ProviderId FilmAffinity, buscando cada uno
+            individualmente en FilmAffinity.com.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.ScheduledTasks.FilmAffinitySyncTask.GetDefaultTriggers">
+            <summary>
+            Configura el trigger por defecto: ejecucion diaria a las 3 AM.
+            El usuario puede cambiar la hora desde Dashboard > Tareas Programadas.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Scraping.SearchResult">
+            <summary>
+            Resultado de una busqueda en la pagina de busqueda de FilmAffinity.
+            Representa un enlace a una ficha de pelicula/serie encontrada.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Scraping.SearchResult.#ctor(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            Resultado de una busqueda en la pagina de busqueda de FilmAffinity.
+            Representa un enlace a una ficha de pelicula/serie encontrada.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Scraping.RatingResult">
+            <summary>
+            Resultado final del scraping de una ficha de FilmAffinity.
+            Contiene la valoracion, votos, titulo y anio extraidos del HTML.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Scraping.RatingResult.#ctor(System.String,System.String,System.Single,System.Int32,System.String)">
+            <summary>
+            Resultado final del scraping de una ficha de FilmAffinity.
+            Contiene la valoracion, votos, titulo y anio extraidos del HTML.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Scraping.SearchScorer">
+            <summary>
+            Logica de puntuacion para ordenar los resultados de busqueda de FilmAffinity.
+            Replica el algoritmo del scraper de Cruzadera (scoreSearchCandidate).
+            Prioriza coincidencia exacta de titulo + coincidencia de anio.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Scraping.SearchScorer.Score(Jellyfin.Plugin.FilmAffinity.Scraping.SearchResult,System.String,System.String)">
+            <summary>
+            Asigna una puntuacion a un candidato de busqueda basandose en
+            la similitud con el titulo y anio solicitados.
+            </summary>
+            <param name="candidate">Resultado de busqueda a evaluar.</param>
+            <param name="requestedTitle">Titulo original solicitado (sin normalizar).</param>
+            <param name="requestedYear">Anio solicitado (opcional).</param>
+            <returns>Puntuacion: mas alta = mejor coincidencia.</returns>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Scraping.SearchScorer.Normalize(System.String)">
+            <summary>
+            Normaliza un texto para comparacion: elimina acentos, convierte a minusculas,
+            elimina caracteres no alfanumericos y colapsa espacios.
+            Equivalente a normalizeSearchText del scraper de Cruzadera.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Scraping.SearchScorer.MatchesYear(System.String,System.String)">
+            <summary>
+            Verifica si el texto de contexto contiene un anio que coincide
+            con el anio solicitado, con tolerancia de +/- 1.
+            </summary>
+            <param name="contextText">Texto de contexto del candidato.</param>
+            <param name="requestedYear">Anio solicitado como string.</param>
+            <returns>true si algun anio en el contexto esta dentro del rango solicitado +/- 1.</returns>
+        </member>
+    </members>
+</doc>

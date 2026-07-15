@@ -1,0 +1,190 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Jellyfin.Plugin.FilmAffinity</name>
+    </assembly>
+    <members>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityCacheService">
+            <summary>
+            Servicio de cache en memoria para resultados de FilmAffinity.
+            TTL: 6h para peliculas recientes (ultimos 2 anios), 24h para el resto.
+            Sin dependencia de SQLite ni almacenamiento persistente.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityCacheService.TryGet(System.String,System.Nullable{System.Int32},Jellyfin.Plugin.FilmAffinity.Api.Models.MovieResult@)">
+            <summary>
+            Intenta obtener un resultado de la cache.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityCacheService.Set(System.String,System.Nullable{System.Int32},Jellyfin.Plugin.FilmAffinity.Api.Models.MovieResult)">
+            <summary>
+            Almacena un resultado en la cache con TTL segun la antiguedad de la pelicula.
+            Peliculas de los ultimos 2 anios: 6h. Resto: 24h.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityCacheService.BuildKey(System.String,System.Nullable{System.Int32})">
+            <summary>
+            Construye una clave de cache unica basada en titulo normalizado y anio.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient">
+            <summary>
+            Cliente HTTP para la API de filmaffinity-scores.
+            La configuracion del HttpClient (BaseAddress, Timeout, User-Agent)
+            se aplica via PluginServiceRegistrator. No depende de Plugin.Instance.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.GetMovie(System.String,System.String,System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Obtiene el rating de FA para una pelicula individual.
+            Estrategia de matching: titulo original -> titulo localizado -> sin anio.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.TryGetMovie(System.String,System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Realiza una consulta HTTP individual a la API.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Api.FilmAffinityClient.GetBatchRatings(System.Collections.Generic.IEnumerable{Jellyfin.Plugin.FilmAffinity.Api.Models.BatchItem},System.Threading.CancellationToken)">
+            <summary>
+            Consulta batch de ratings. Mas eficiente para el SyncTask.
+            Envia multiples titulos en una sola peticion HTTP.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration">
+            <summary>
+            Configuracion persistente del plugin FilmAffinity.
+            Se serializa a XML en /config/plugins/FilmAffinity.xml
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.ApiBaseUrl">
+            <summary>URL base de la API filmaffinity-scores</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.ApiTimeoutSeconds">
+            <summary>Timeout en segundos para llamadas HTTP a la API</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.MinVotes">
+            <summary>Minimo de votos en FA para considerar la valoracion fiable</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.SetCriticRating">
+            <summary>Si es true, tambien escribe CriticRating (FA rating x 10)</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.ThrottleMs">
+            <summary>Delay entre requests HTTP al servicio de scraping (ms)</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.SyncIntervalHours">
+            <summary>Intervalo de sincronizacion programada en horas</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Configuration.PluginConfiguration.BatchSize">
+            <summary>Tamanio del lote para la API batch</summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.FilmAffinityHelpers">
+            <summary>
+            Metodos auxiliares compartidos entre providers y el SyncTask.
+            Centraliza el parseo de votos para evitar duplicacion de codigo.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.FilmAffinityHelpers.ParseVotes(System.String)">
+            <summary>
+            Convierte el string de votos de FilmAffinity ("12.345", "1,234")
+            a entero, eliminando separadores de miles.
+            </summary>
+            <param name="votes">String de votos desde la API de FA.</param>
+            <returns>Numero de votos como entero, o 0 si no se pudo parsear.</returns>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.FilmAffinityHelpers.HasEnoughVotes(System.String,System.Int32)">
+            <summary>
+            Verifica si un rating de FilmAffinity tiene suficientes votos
+            para ser considerado fiable, segun la configuracion del plugin.
+            </summary>
+            <param name="votes">String de votos desde la API de FA.</param>
+            <param name="minVotes">Umbral minimo de votos desde la configuracion.</param>
+            <returns>true si los votos alcanzan o superan el minimo.</returns>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Plugin">
+            <summary>
+            Plugin principal de FilmAffinity para Jellyfin.
+            Registra los providers de metadata y la tarea programada de sincronizacion.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Plugin.Instance">
+            <summary>Instancia unica del plugin accesible desde cualquier parte del codigo.</summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Plugin.Log">
+            <summary>Logger estatico para uso en clases que no reciben DI.</summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Plugin.GetPages">
+            <summary>
+            Paginas web del plugin. La pagina de configuracion se sirve como recurso embebido.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.PluginServiceRegistrator">
+            <summary>
+            Registra los servicios del plugin en el contenedor de DI de Jellyfin.
+            Jellyfin detecta automaticamente esta clase al iniciar y llama a RegisterServices.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityBoxSetProvider">
+            <summary>
+            Provider que aniade el rating de FilmAffinity a sagas y colecciones (BoxSet).
+            FilmAffinity tiene paginas dedicadas para sagas (ej: "El Senor de los Anillos (Saga)").
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider">
+            <summary>
+            Provider que aniade el rating de FilmAffinity a peliculas.
+            Se ejecuta despues de los providers principales (TMDB, TVDB, etc.)
+            gracias a IHasOrder.Order = 1. No reemplaza metadatos existentes,
+            solo complementa con el rating de FA.
+            </summary>
+        </member>
+        <member name="P:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider.Order">
+            <summary>
+            Orden 1 = se ejecuta despues de los providers principales
+            (que tienen orden negativo o 0). Asi no interfiere con TMDB/TVDB.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider.GetMetadata(MediaBrowser.Controller.Providers.MovieInfo,System.Threading.CancellationToken)">
+            <summary>
+            Obtiene el rating de FilmAffinity para una pelicula.
+            Jellyfin llama a este metodo durante el escaneo de bibliotecas.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider.GetSearchResults(MediaBrowser.Controller.Providers.MovieInfo,System.Threading.CancellationToken)">
+            <summary>
+            No implementamos busqueda completa. Solo enriquecemos ratings.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinityMovieProvider.GetImageResponse(System.String,System.Threading.CancellationToken)">
+            <summary>
+            No gestionamos imagenes.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.Providers.FilmAffinitySeriesProvider">
+            <summary>
+            Provider que aniade el rating de FilmAffinity a series de TV.
+            Misma logica que FilmAffinityMovieProvider pero para el tipo Series.
+            </summary>
+        </member>
+        <member name="T:Jellyfin.Plugin.FilmAffinity.ScheduledTasks.FilmAffinitySyncTask">
+            <summary>
+            Tarea programada que recorre la biblioteca en busca de items
+            sin el ProviderId de FilmAffinity y les asigna el rating via la API batch.
+            Se ejecuta diariamente a las 3 AM por defecto.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.ScheduledTasks.FilmAffinitySyncTask.ExecuteAsync(System.IProgress{System.Double},System.Threading.CancellationToken)">
+            <summary>
+            Ejecuta la sincronizacion masiva de ratings.
+            Procesa items sin ProviderId FilmAffinity en batches, consultando la API externa.
+            </summary>
+        </member>
+        <member name="M:Jellyfin.Plugin.FilmAffinity.ScheduledTasks.FilmAffinitySyncTask.GetDefaultTriggers">
+            <summary>
+            Configura el trigger por defecto: ejecucion diaria a las 3 AM.
+            DailyTrigger no soporta intervalo personalizado; el usuario puede
+            cambiar la hora desde Dashboard > Tareas Programadas.
+            </summary>
+        </member>
+    </members>
+</doc>

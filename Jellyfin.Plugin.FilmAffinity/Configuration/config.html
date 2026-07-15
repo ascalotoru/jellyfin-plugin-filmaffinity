@@ -1,0 +1,98 @@
+<div class="plugin-config">
+    <h2>FilmAffinity Ratings v2.0</h2>
+    <p>
+        Integra las valoraciones de
+        <strong>FilmAffinity.com</strong> en tu biblioteca de Jellyfin
+        mediante scraping nativo. No requiere servicios externos.
+        Desarrollado por <strong>falbuixech</strong>.
+    </p>
+
+    <h3>Conexion</h3>
+
+    <div class="form-group">
+        <label for="fa-base-url">URL base de FilmAffinity</label>
+        <input type="text" id="fa-base-url" class="form-control"
+               bind-value="Plugin.Configuration.FilmAffinityBaseUrl" />
+        <small class="form-text text-muted">
+            Por defecto: https://www.filmaffinity.com/es/
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="fa-timeout">Timeout HTTP (segundos)</label>
+        <input type="number" id="fa-timeout" min="5" max="120"
+               bind-value="Plugin.Configuration.RequestTimeoutSeconds" />
+        <small>
+            Tiempo maximo de espera por cada request a FilmAffinity.
+            Por defecto: 30.
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="fa-user-agent">User-Agent</label>
+        <input type="text" id="fa-user-agent" class="form-control"
+               bind-value="Plugin.Configuration.UserAgent" />
+        <small>
+            Identificador del navegador enviado a FilmAffinity.
+            Cambialo si encuentras bloqueos anti-bot.
+        </small>
+    </div>
+
+    <h3>Scraping</h3>
+
+    <div class="form-group">
+        <label for="fa-min-votes">
+            Minimo de votos en FilmAffinity
+        </label>
+        <input type="number" id="fa-min-votes" min="0" max="100000"
+               bind-value="Plugin.Configuration.MinVotes" />
+        <small>
+            Ignora ratings con menos votos de este umbral para asegurar
+            fiabilidad. Por defecto: 50.
+        </small>
+    </div>
+
+    <div class="form-group">
+        <label for="fa-throttle">Delay entre requests (ms)</label>
+        <input type="number" id="fa-throttle" min="500" max="10000"
+               bind-value="Plugin.Configuration.ThrottleMs" />
+        <small>
+            Tiempo de espera entre cada request HTTP a FilmAffinity.
+            Por defecto: 2000 ms. No bajar de 1000 ms para evitar bloqueos.
+        </small>
+    </div>
+
+    <div class="checkbox">
+        <label>
+            <input type="checkbox"
+                   bind-checked="Plugin.Configuration.SetCriticRating" />
+            Establecer tambien CriticRating (FA rating x 10)
+        </label>
+    </div>
+
+    <h3>Sincronizacion</h3>
+
+    <p class="text-muted">
+        <small>
+            La sincronizacion procesa cada item secuencialmente con el
+            retardo configurado en <em>Delay entre requests</em>.
+            Los items ya procesados se marcan con ProviderId y no se
+            reintentan.
+        </small>
+    </p>
+
+    <hr />
+    <p class="text-muted">
+        <small>
+            v2.0 - Scraping nativo autocontenido. Sin dependencias externas.
+            Los items procesados se marcan internamente con el ProviderId
+            de FilmAffinity. La tarea programada se ejecuta diariamente
+            a las 3 AM. Configurable desde Dashboard > Tareas Programadas.
+        </small>
+    </p>
+
+    <button class="btn btn-primary" onclick="Plugin.save()">
+        Guardar Configuracion
+    </button>
+    <span style="margin-left: 1em; color: green;" id="save-result"></span>
+</div>

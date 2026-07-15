@@ -1,0 +1,14 @@
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.csproj.AssemblyReference.cache
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.AssemblyInfoInputs.cache
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.AssemblyInfo.cs
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.csproj.CoreCompileInputs.cache
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\bin\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.deps.json
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\bin\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.dll
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\bin\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.pdb
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\bin\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.xml
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.dll
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\refint\Jellyfin.Plugin.FilmAffinity.dll
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.xml
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\Jellyfin.Plugin.FilmAffinity.pdb
+C:\Users\falbuixech\Documents\PROYECTOS\Proyectos\jellyfin-plugin-filmaffinity\Jellyfin.Plugin.FilmAffinity\obj\Debug\net9.0\ref\Jellyfin.Plugin.FilmAffinity.dll

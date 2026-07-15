@@ -1,0 +1,105 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\falbuixech\\Documents\\PROYECTOS\\Proyectos\\jellyfin-plugin-filmaffinity\\Jellyfin.Plugin.FilmAffinity\\Jellyfin.Plugin.FilmAffinity.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\falbuixech\\Documents\\PROYECTOS\\Proyectos\\jellyfin-plugin-filmaffinity\\Jellyfin.Plugin.FilmAffinity\\Jellyfin.Plugin.FilmAffinity.csproj": {
+      "version": "2.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\falbuixech\\Documents\\PROYECTOS\\Proyectos\\jellyfin-plugin-filmaffinity\\Jellyfin.Plugin.FilmAffinity\\Jellyfin.Plugin.FilmAffinity.csproj",
+        "projectName": "Jellyfin.Plugin.FilmAffinity",
+        "projectPath": "C:\\Users\\falbuixech\\Documents\\PROYECTOS\\Proyectos\\jellyfin-plugin-filmaffinity\\Jellyfin.Plugin.FilmAffinity\\Jellyfin.Plugin.FilmAffinity.csproj",
+        "packagesPath": "C:\\Users\\falbuixech\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\falbuixech\\Documents\\PROYECTOS\\Proyectos\\jellyfin-plugin-filmaffinity\\Jellyfin.Plugin.FilmAffinity\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\falbuixech\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.200"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "HtmlAgilityPack": {
+              "target": "Package",
+              "version": "[1.12.1, )"
+            },
+            "Jellyfin.Controller": {
+              "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[10.11.8, )"
+            },
+            "Jellyfin.Model": {
+              "include": "Compile, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[10.11.8, )"
+            },
+            "Microsoft.Extensions.Caching.Memory": {
+              "target": "Package",
+              "version": "[9.0.11, )"
+            },
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[9.0.11, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[9.0.16, 9.0.16]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[9.0.16, 9.0.16]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[9.0.16, 9.0.16]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.204/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

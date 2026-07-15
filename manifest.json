@@ -1,0 +1,20 @@
+[
+  {
+    "guid": "A7B8C9D0-E1F2-3456-7890-ABCDEF123456",
+    "name": "FilmAffinity Ratings",
+    "owner": "falbuixech",
+    "category": "Metadata",
+    "overview": "Aniade valoraciones de FilmAffinity a tu biblioteca de Jellyfin mediante scraping nativo autocontenido",
+    "description": "Plugin nativo para Jellyfin que integra las valoraciones de FilmAffinity.com como metadato complementario. Aniade el rating de FA al campo CommunityRating de peliculas, series y sagas. v2.0: scraping nativo autocontenido con HttpClient + HtmlAgilityPack. Sin dependencias externas.",
+    "versions": [
+      {
+        "version": "2.0.0.0",
+        "changelog": "v2.0.0 - Scraping nativo autocontenido. Elimina la dependencia de filmaffinity-scores-api. Busqueda y extraccion directa desde FilmAffinity.com mediante HtmlAgilityPack. Deteccion de Cloudflare. Nuevo diseno de configuracion. Sin Node.js, Docker ni servicios externos. Desarrollado por falbuixech. GPLv3.",
+        "targetAbi": "10.11.8.0",
+        "sourceUrl": "https://github.com/falbuixech/jellyfin-plugin-filmaffinity/releases/download/v2.0.0/Jellyfin.Plugin.FilmAffinity.zip",
+        "checksum": "08c66ba2379e6fe11cc86d68d66c5945",
+        "timestamp": "2026-07-15T12:00:00Z"
+      }
+    ]
+  }
+]
