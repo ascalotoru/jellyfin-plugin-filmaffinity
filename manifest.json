@@ -5,15 +5,15 @@
     "owner": "falbuixech",
     "category": "Metadata",
     "overview": "Aniade valoraciones de FilmAffinity a tu biblioteca de Jellyfin mediante scraping nativo autocontenido",
-    "description": "Plugin nativo para Jellyfin que integra las valoraciones de FilmAffinity.com como metadato complementario. Aniade el rating de FA al campo CommunityRating de peliculas, series y sagas. v2.0: scraping nativo autocontenido con HttpClient + HtmlAgilityPack. Sin dependencias externas.",
+    "description": "Plugin nativo para Jellyfin que integra las valoraciones de FilmAffinity.com como metadato complementario. Aniade el rating de FA al campo CommunityRating de peliculas, series y sagas. v2.0.1: incluye las dependencias (HtmlAgilityPack + deps.json) y corrige la extraccion de rating/votos.",
     "versions": [
       {
-        "version": "2.0.0.0",
-        "changelog": "v2.0.0 - Scraping nativo autocontenido. Elimina la dependencia de filmaffinity-scores-api. Busqueda y extraccion directa desde FilmAffinity.com mediante HtmlAgilityPack. Deteccion de Cloudflare. Nuevo diseno de configuracion. Sin Node.js, Docker ni servicios externos. Desarrollado por falbuixech. GPLv3.",
+        "version": "2.0.1.0",
+        "changelog": "v2.0.1 - Fix empaquetado (incluye HtmlAgilityPack.dll + deps.json), fix de selectores de rating/votos y eliminacion del SizeLimit global de IMemoryCache.",
         "targetAbi": "10.11.8.0",
-        "sourceUrl": "https://github.com/falbuixech/jellyfin-plugin-filmaffinity/releases/download/v2.0.0/Jellyfin.Plugin.FilmAffinity.zip",
-        "checksum": "08c66ba2379e6fe11cc86d68d66c5945",
-        "timestamp": "2026-07-15T12:00:00Z"
+        "sourceUrl": "https://github.com/ascalotoru/jellyfin-plugin-filmaffinity/releases/download/v2.0.1/Jellyfin.Plugin.FilmAffinity.zip",
+        "checksum": "c5848ea1b2fcf8d98ad8171205886d3d",
+        "timestamp": "2026-10-17T00:00:00Z"
       }
     ]
   }
