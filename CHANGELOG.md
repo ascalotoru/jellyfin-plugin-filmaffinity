@@ -7,6 +7,26 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [2.0.1] — 2026-10-17
+
+### Corregido
+
+- **Empaquetado**: el zip de la release solo incluía `Jellyfin.Plugin.FilmAffinity.dll`.
+  Faltaban `HtmlAgilityPack.dll` y `Jellyfin.Plugin.FilmAffinity.deps.json`, por lo que
+  el plugin fallaba con `FileNotFoundException: HtmlAgilityPack` en cada ítem (búsqueda
+  y parseo). Ahora `dotnet publish` incluye la dependencia y `build.yaml` la empaqueta.
+- **Extracción de rating/votos**: se probaba `#rat-avg-count` (contenedor externo que
+  incluye votos y texto) antes que `#movie-rat-avg`, y el operador `??` cortocircuitaba
+  la cadena, por lo que el rating nunca se leía. Ahora se lee el atributo `content` de
+  `#movie-rat-avg` (`itemprop="ratingValue"`) y los votos de `itemprop="ratingCount"`.
+  Sin esto, la sincronización terminaba con `0 actualizados`.
+- **Caché**: `PluginServiceRegistrator` fijaba `MemoryCacheOptions.SizeLimit` en la
+  `IMemoryCache` compartida de Jellyfin, obligando a que TODAS las entradas (también las
+  de Jellyfin/TMDb) declarasen `Size` y provocando errores
+  `Cache entry must specify a value for Size when SizeLimit is set`. Se elimina el límite.
+
+---
+
 ## [2.0.0] — 2026-07-15
 
 ### Cambiado

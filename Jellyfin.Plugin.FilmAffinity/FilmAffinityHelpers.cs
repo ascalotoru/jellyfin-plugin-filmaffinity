@@ -17,10 +17,10 @@ public static class FilmAffinityHelpers
         if (string.IsNullOrWhiteSpace(votes))
             return 0;
 
-        // Eliminar puntos (estilo espaniol: "173.755") y comas (estilo ingles: "173,755")
-        return int.TryParse(
-            votes.Replace(".", "").Replace(",", ""),
-            out var v) ? v : 0;
+        // Quedarse solo con los digitos: elimina separadores de miles
+        // ("173.755" / "173,755") y cualquier texto adicional ("200.215 votos").
+        var digits = new string(votes.Where(char.IsDigit).ToArray());
+        return int.TryParse(digits, out var v) ? v : 0;
     }
 
     /// <summary>

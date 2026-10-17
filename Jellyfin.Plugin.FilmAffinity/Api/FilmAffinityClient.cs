@@ -280,9 +280,9 @@ public class FilmAffinityClient
 
     /// <summary>
     /// Parsea la pagina de detalle de FilmAffinity para extraer rating, votos y titulo.
-    /// Selectores CSS (equivalentes al scraper de Cruzadera):
-    /// - Rating: #rat-avg-count, #movie-rat-avg, meta[itemprop="ratingValue"]
-    /// - Votos: #movie-count-rat, meta[itemprop="ratingCount"]
+    /// Selectores:
+    /// - Rating: #movie-rat-avg (attr content / InnerText) y [itemprop="ratingValue"] (attr content)
+    /// - Votos: [itemprop="ratingCount"] (attr content) y #movie-count-rat (texto)
     /// - Titulo: #main-title
     /// - Anio: .fa-year, dd[itemprop="datePublished"]
     /// </summary>
@@ -299,39 +299,51 @@ public class FilmAffinityClient
             ?? requestedTitle;
 
         // --- Extraer rating ---
-        // Selectores en orden de preferencia
-        var ratingStr =
+        // El rating esta en el atributo content="7.9" del nodo
+        // #movie-rat-avg (itemprop="ratingValue"). El contenedor
+        // #rat-avg-count incluye tambien votos y otro texto, por lo que su
+        // InnerText no es parseable: probamos varias fuentes en orden y nos
+        // quedamos con la primera que sea un numero valido.
+        var ratingCandidates = new[]
+        {
+            GetAttr(doc, "//*[@id='movie-rat-avg']", "content"),
+            GetText(doc, "#movie-rat-avg"),
+            GetAttr(doc, "//*[@itemprop='ratingValue']", "content"),
             GetText(doc, "#rat-avg-count")
-            ?? GetText(doc, "#movie-rat-avg")
-            ?? GetAttr(doc, "//meta[@itemprop='ratingValue']", "content")
-            ?? "";
+        };
 
         // FilmAffinity usa coma decimal en espaniol: "7,9" -> 7.9
-        ratingStr = ratingStr.Trim();
         float? rating = null;
-        if (!string.IsNullOrEmpty(ratingStr))
+        foreach (var candidate in ratingCandidates)
         {
-            ratingStr = ratingStr.Replace(",", ".");
-            if (float.TryParse(ratingStr,
+            if (string.IsNullOrWhiteSpace(candidate))
+                continue;
+
+            var normalized = candidate.Trim().Replace(",", ".");
+            if (float.TryParse(normalized,
                     System.Globalization.NumberStyles.Float,
                     System.Globalization.CultureInfo.InvariantCulture,
-                    out var r))
+                    out var r)
+                && r > 0)
             {
                 rating = r;
+                break;
             }
         }
 
-        if (rating is null || rating.Value <= 0)
+        if (rating is null)
         {
             _logger.LogDebug("FA detail: sin rating en {Url}", url);
             return null;
         }
 
         // --- Extraer votos ---
-        var votesStr =
-            GetText(doc, "#movie-count-rat")
-            ?? GetAttr(doc, "//meta[@itemprop='ratingCount']", "content")
-            ?? "";
+        // El conteo fiable esta en el atributo content del span
+        // itemprop="ratingCount" (ej: content="200215"). El texto de
+        // #movie-count-rat incluye palabras ("200.215 votos").
+        var votesStr = GetAttr(doc, "//*[@itemprop='ratingCount']", "content");
+        if (string.IsNullOrWhiteSpace(votesStr))
+            votesStr = GetText(doc, "#movie-count-rat");
 
         var votes = FilmAffinityHelpers.ParseVotes(votesStr);
 

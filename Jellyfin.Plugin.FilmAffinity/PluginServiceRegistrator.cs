@@ -37,10 +37,12 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
 
         // Cache en memoria para resultados de FilmAffinity.
         // Evita consultas repetidas a FilmAffinity en intervalos cortos.
-        services.AddMemoryCache(options =>
-        {
-            options.SizeLimit = 10000;
-        });
+        // NO se fija SizeLimit: IMemoryCache es compartida por todo Jellyfin,
+        // y un limite global obliga a que TODAS las entradas (tambien las de
+        // Jellyfin u otros plugins) declaren Size, lo que provoca errores del
+        // tipo "Cache entry must specify a value for Size when SizeLimit is set".
+        // La cache del plugin acota su tamano por TTL.
+        services.AddMemoryCache();
         services.AddSingleton<FilmAffinityCacheService>();
     }
 }

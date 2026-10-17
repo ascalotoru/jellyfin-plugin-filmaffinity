@@ -2,7 +2,7 @@
 name: "FilmAffinity Ratings"
 guid: "A7B8C9D0-E1F2-3456-7890-ABCDEF123456"
 imageUrl: "https://raw.githubusercontent.com/falbuixech/jellyfin-plugin-filmaffinity/master/logo.png"
-version: "1.0.0.0"
+version: "2.0.1.0"
 targetAbi: "10.11.8.0"
 framework: "net9.0"
 owner: "falbuixech"
@@ -11,17 +11,19 @@ description: >
   Plugin nativo para Jellyfin que integra las valoraciones
   de FilmAffinity.com como metadato complementario. Aniade
   el rating de FA al campo CommunityRating de peliculas,
-  series y sagas. Requiere el servicio companion
-  filmaffinity-scores-api ejecutandose en localhost:8085.
-  Desarrollado por falbuixech. Licencia GPLv3.
+  series y sagas. Scraping nativo autocontenido con
+  HttpClient + HtmlAgilityPack. Desarrollado por falbuixech.
+  Licencia GPLv3.
 category: "Metadata"
 artifacts:
   - "Jellyfin.Plugin.FilmAffinity.dll"
+  - "Jellyfin.Plugin.FilmAffinity.deps.json"
+  - "HtmlAgilityPack.dll"
 changelog: |-
-  v1.0.0 - Version inicial
-  - MovieProvider: ratings para peliculas
-  - SeriesProvider: ratings para series
-  - BoxSetProvider: ratings para sagas/colecciones
-  - SyncTask: sincronizacion masiva programada
-  - Cache en memoria con TTL inteligente
-  - Pagina de configuracion en dashboard
+  v2.0.1 - Corregido el empaquetado para incluir las dependencias
+  (HtmlAgilityPack.dll y el .deps.json) que antes faltaban en el zip,
+  lo que provocaba FileNotFoundException al parsear el HTML.
+  Corregida la extraccion del rating y de los votos con los
+  selectores actuales de FilmAffinity.
+  Eliminado el SizeLimit global de IMemoryCache que rompia la cache
+  compartida de Jellyfin (afectaba a TMDb y otros providers).
